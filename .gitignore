@@ -1,0 +1,13 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Data
+sample_data/
+
+# Secrets
+.env
+
+# macOS
+.DS_Store
