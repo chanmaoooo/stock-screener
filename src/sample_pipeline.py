@@ -34,7 +34,6 @@ def process_price_data(data):
 
 
 def save_price_data(data, ticker):
-    # output_dir = Path('sample_data')
     output_dir = DATA_DIR / 'prices'
     output_dir.mkdir(parents=True, exist_ok=True)
 
