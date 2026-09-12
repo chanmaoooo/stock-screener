@@ -24,5 +24,10 @@ jobs:
           printf '%s' '${{ secrets.GOOGLE_CREDENTIALS_JSON }}' > credentials.json
           printf '%s' '${{ secrets.GOOGLE_TOKEN_JSON }}' > token.json
 
-      - name: Test Google Drive
-        run: python src/test_drive.py
+      - name: Download master data
+        run: python src/download_drive_data.py
+
+      - name: Check downloaded file
+        run: |
+          ls -la data/master
+          head -n 5 data/master/master.csv
