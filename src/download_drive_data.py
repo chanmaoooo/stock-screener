@@ -63,6 +63,32 @@ def download_file(service, file_id, output_path):
 
 
 
+def find_folder(service, name):
+    result = service.files().list(
+        q = (
+            f"name = '{name} "
+            "and mimeType = 'application/vnd.google-apps.folder' "
+            "and trashed = false"
+        ),
+        fields = 'files(id, name)'
+    ).execute()
+
+    folders = result.get('files', [])
+
+    if(len(folders)==0):
+        raise FileNotFoundError(
+            f'Folder not found on Google Drive: {name}'
+        )
+
+    if(len(folders)>1):
+        raise ValueError(
+            f'Multiple folders found with name: {name}'
+        )
+
+    return folders[0]
+
+
+
 def main():
     credentials = Credentials.from_authorized_user_file(
         TOKEN_PATH,
@@ -88,11 +114,24 @@ def main():
         output_path,
     )
 
-
     print(
         f'Downloaded master.csv to '
         f'{output_path}'
     )
+
+
+    prices_folder = find_folder(
+        service,
+        'prices',
+    )
+
+    print(
+        f"Found prices folder: "
+        f"{prices_folder['id']}"
+    )
+
+
+
 
 
 if __name__ == '__main__':
