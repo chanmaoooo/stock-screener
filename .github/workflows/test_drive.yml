@@ -31,3 +31,4 @@ jobs:
         run: |
           ls -la data/master
           head -n 5 data/master/master.csv
+          ls -la data/prices

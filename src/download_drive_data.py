@@ -180,6 +180,24 @@ def main():
         )
 
 
+    test_file = price_files[0]
+
+    test_output_path = (
+        LOCAL_DATA_DIR / 'prices' / test_file['name']
+    )
+
+    download_file(
+        service,
+        test_file['id'],
+        test_output_path,
+    )
+
+    print(
+        f"Downloaded {test_file['name']} "
+        f"to {test_output_path}"
+    )
+
+
 
 
 
