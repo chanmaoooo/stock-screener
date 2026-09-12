@@ -4,6 +4,8 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
 
+import time
+
 SCOPES = ['https://www.googleapis.com/auth/drive']
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
@@ -180,22 +182,34 @@ def main():
         )
 
 
-    test_file = price_files[0]
+    start_time = time.time()
 
-    test_output_path = (
-        LOCAL_DATA_DIR / 'prices' / test_file['name']
-    )
+    test_files= price_files[:100]
 
-    download_file(
-        service,
-        test_file['id'],
-        test_output_path,
-    )
+    for i,file in enumerate(test_files, start=1):
+        output_path = (
+            LOCAL_DATA_DIR / 'prices' / file['name']
+        )
+
+        download_file(
+            service,
+            file['id'],
+            output_path,
+        )
+
+        print(
+            f"[{i}/{len(test_files)}] "
+            f"tDownloaded {file['name']}"
+        )
+
+    elapsed_time = time.time() - start_time
 
     print(
-        f"Downloaded {test_file['name']} "
-        f"to {test_output_path}"
+        f'Downloaded {len(test_files)} files '
+        f'in {elapsed_time:.1f} seconds.'
     )
+
+    
 
 
 
