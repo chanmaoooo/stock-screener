@@ -89,6 +89,39 @@ def find_folder(service, name):
 
 
 
+def list_files_in_folder(service, folder_id):
+    files = []
+    page_token = None
+
+    while True:
+        result = service.files().list(
+            q = (
+                f"'{folder_id}' in parents "
+                "and trashed = false"
+            ),
+            fields = (
+                'nextPageToken, '
+                'files(id, name)'
+            ),
+            pageSize = 1000,
+            pageToken = page_token,
+        ).execute()
+
+        files.extend(
+            result.get('files', [])
+        )
+
+        page_token = result.get(
+            'nextPageToken'
+        )
+
+        if page_token is None:
+            break
+
+    return files
+
+
+
 def main():
     credentials = Credentials.from_authorized_user_file(
         TOKEN_PATH,
@@ -129,6 +162,22 @@ def main():
         f"Found prices folder: "
         f"{prices_folder['id']}"
     )
+
+    price_files = list_files_in_folder(
+        service,
+        prices_folder['id'],
+    )
+
+    print(
+        f'Found {len(price_files)} files '
+        f'in prices folder.'
+    )
+
+    for file in price_files[:10]:
+        print(
+            file['name'],
+            file['id'],
+        )
 
 
 
