@@ -66,7 +66,7 @@ def download_file(service, file_id, output_path):
 def find_folder(service, name):
     result = service.files().list(
         q = (
-            f"name = '{name} "
+            f"name = '{name}' "
             "and mimeType = 'application/vnd.google-apps.folder' "
             "and trashed = false"
         ),
