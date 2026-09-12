@@ -36,4 +36,4 @@ jobs:
           find data/prices -type f | wc -l
 
           echo "First few files:"
-          find data/prices -type f | head
+          find data/prices -type f | sed -n '1,10p'
