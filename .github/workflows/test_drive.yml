@@ -28,7 +28,7 @@ jobs:
         run: python src/download_drive_data.py
 
       - name: Extract price data
-        run: unzip data/prices.zip -d data
+        run: unzip -q data/prices.zip -d data
 
       - name: Limit master to 10 stocks for testing
         run: |
@@ -59,4 +59,12 @@ jobs:
         env:
           STOCK_DATA_DIR: ${{ github.workspace }}/data
         run: python src/update_prices.py
+
+      - name: Compress updated price data
+        run: |
+          rm data/prices.zip
+          cd data
+          zip -rq prices.zip prices
+          cd ..
+          ls -lh data/prices.zip
       
