@@ -1,0 +1,28 @@
+name: Test Google Drive
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-drive:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Restore Google credentials
+        run: |
+          printf '%s' '${{ secrets.GOOGLE_CREDENTIALS_JSON }}' > credentials.json
+          printf '%s' '${{ secrets.GOOGLE_TOKEN_JSON }}' > token.json
+
+      - name: Test Google Drive
+        run: python src/test_drive.py

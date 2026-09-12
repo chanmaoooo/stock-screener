@@ -11,3 +11,10 @@ sample_data/
 
 # macOS
 .DS_Store
+
+# Backup codes for Google Cloud Console
+Backup-codes-chanmaoooo.txt
+
+# OAuth Cliant
+credentials.json
+token.json
