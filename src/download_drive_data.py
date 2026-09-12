@@ -11,12 +11,22 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 TOKEN_PATH = ROOT_DIR / 'token.json'
 
 LOCAL_DATA_DIR = ROOT_DIR / 'data'
-LOCAL_MASTER_DIR = LOCAL_DATA_DIR / 'master'
+# LOCAL_MASTER_DIR = LOCAL_DATA_DIR / 'master'
 
 
-def find_file(service, name):
+def find_file(service, name, parent_id=None):
+    query_parts = [
+        f"name = '{name}'",
+        "trashed = false",
+    ]
+
+    if parent_id is not None:
+        query_parts.append(
+            f"'{parent_id}' in parents"
+        )
+
     result = service.files().list(
-        q = f"name = '{name}' and trashed = false",
+        q = ' and '.join(query_parts),
         fields = 'files(id, name)',
     ).execute()
 
@@ -24,12 +34,12 @@ def find_file(service, name):
 
     if(len(files)==0):
         raise FileNotFoundError(
-            f'File not found on Google Drive: {name}'
+            f'File not found: {name}'
         )
 
     if(len(files)>1):
         raise ValueError(
-            f'Multiple files found with name: {name}'
+            f'Multiple files found: {name}'
         )
 
     return files[0]
@@ -64,13 +74,20 @@ def download_file(service, file_id, output_path):
 
 
 
-def find_folder(service, name):
+def find_folder(service, name, parent_id=None):
+    query_parts = [
+        f"name = '{name}'",
+        "mimeType = 'application/vnd.google-apps.folder'",
+        "trashed = false",
+    ]
+
+    if parent_id is not None:
+        query_parts.append(
+            f"'{parent_id}' in parents"
+        )
+
     result = service.files().list(
-        q = (
-            f"name = '{name}' "
-            "and mimeType = 'application/vnd.google-apps.folder' "
-            "and trashed = false"
-        ),
+        q = ' and '.join(query_parts),
         fields = 'files(id, name)'
     ).execute()
 
@@ -78,48 +95,15 @@ def find_folder(service, name):
 
     if(len(folders)==0):
         raise FileNotFoundError(
-            f'Folder not found on Google Drive: {name}'
+            f'Folder not found: {name}'
         )
 
     if(len(folders)>1):
         raise ValueError(
-            f'Multiple folders found with name: {name}'
+            f'Multiple folders found: {name}'
         )
 
     return folders[0]
-
-
-
-def list_files_in_folder(service, folder_id):
-    files = []
-    page_token = None
-
-    while True:
-        result = service.files().list(
-            q = (
-                f"'{folder_id}' in parents "
-                "and trashed = false"
-            ),
-            fields = (
-                'nextPageToken, '
-                'files(id, name)'
-            ),
-            pageSize = 1000,
-            pageToken = page_token,
-        ).execute()
-
-        files.extend(
-            result.get('files', [])
-        )
-
-        page_token = result.get(
-            'nextPageToken'
-        )
-
-        if page_token is None:
-            break
-
-    return files
 
 
 
@@ -135,55 +119,45 @@ def main():
         credentials=credentials,
     )
 
+    stock_data_folder = find_folder(
+        service,
+        'stock-screener-data',
+    )
+
+    stock_data_folder_id = ( stock_data_folder['id'] )
+
+    master_folder = find_folder(
+        service,
+        'master',
+        parent_id = stock_data_folder_id,
+    )
+
+    master_folder_id = ( master_folder['id'] )
+
     master_file = find_file(
         service,
         'master.csv',
+        parent_id = master_folder_id,
     )
 
-    output_path = (LOCAL_MASTER_DIR / 'master.csv')
+    master_output_path = (LOCAL_DATA_DIR / 'master' / 'master.csv')
 
     download_file(
         service,
         master_file['id'],
-        output_path,
+        master_output_path,
     )
 
     print(
         f'Downloaded master.csv to '
-        f'{output_path}'
+        f'{master_output_path}'
     )
-
-
-    prices_folder = find_folder(
-        service,
-        'prices',
-    )
-
-    print(
-        f"Found prices folder: "
-        f"{prices_folder['id']}"
-    )
-
-    price_files = list_files_in_folder(
-        service,
-        prices_folder['id'],
-    )
-
-    print(
-        f'Found {len(price_files)} files '
-        f'in prices folder.'
-    )
-
-    for file in price_files[:10]:
-        print(
-            file['name'],
-            file['id'],
-        )
 
 
     prices_zip_file = find_file(
         service,
         'prices.zip',
+        parent_id = stock_data_folder_id,
     )
 
     prices_zip_path = (LOCAL_DATA_DIR / 'prices.zip')

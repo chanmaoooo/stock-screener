@@ -14,12 +14,19 @@ PRICES_ZIP_PATH = ROOT_DIR / 'data' / 'prices.zip'
 
 
 
-def find_file(service, name):
+def find_file(service, name, parent_id=None):
+    query_parts = [
+        f"name = '{name}'",
+        "trashed = false",
+    ]
+
+    if parent_id is not None:
+        query_parts.append(
+            f"'{parent_id}' in parents"
+        )
+
     result = service.files().list(
-        q=(
-            f"name = '{name}' "
-            "and trashed = false"
-        ),
+        q = ' and '.join(query_parts),
         fields = 'files(id, name)',
     ).execute()
 
@@ -27,15 +34,47 @@ def find_file(service, name):
 
     if(len(files)==0):
         raise FileNotFoundError(
-            f'File not found on Google Drive: {name}'
+            f'File not found: {name}'
         )
 
     if(len(files)>1):
         raise ValueError(
-            f'Multiple files found with name: {name}'
+            f'Multiple files found: {name}'
         )
 
     return files[0]
+
+
+def find_folder(service, name, parent_id=None):
+    query_parts = [
+        f"name = '{name}'",
+        "mimeType = 'application/vnd.google-apps.folder'",
+        "trashed = false",
+    ]
+
+    if parent_id is not None:
+        query_parts.append(
+            f"'{parent_id}' in parents"
+        )
+
+    result = service.files().list(
+        q = ' and '.join(query_parts),
+        fields = 'files(id, name)'
+    ).execute()
+
+    folders = result.get('files', [])
+
+    if(len(folders)==0):
+        raise FileNotFoundError(
+            f'Folder not found: {name}'
+        )
+
+    if(len(folders)>1):
+        raise ValueError(
+            f'Multiple folders found: {name}'
+        )
+
+    return folders[0]
 
 
 
@@ -51,9 +90,15 @@ def main():
         credentials=credentials,
     )
 
+    stock_data_folder = find_folder(
+        service,
+        'stock-screener-data',
+    )
+
     drive_file = find_file(
         service,
         'prices.zip',
+        parent_id = stock_data_folder['id'],
     )
 
     media = MediaFileUpload(
