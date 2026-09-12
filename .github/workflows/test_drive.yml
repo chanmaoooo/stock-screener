@@ -58,5 +58,5 @@ jobs:
       - name: Update price data
         env:
           STOCK_DATA_DIR: ${{ github.workspace }}/data
-        run: python src/update_price.py
+        run: python src/update_prices.py
       
