@@ -30,10 +30,33 @@ jobs:
       - name: Extract price data
         run: unzip data/prices.zip -d data
 
-      - name: Check extracted price data
+      - name: Limit master to 10 stocks for testing
         run: |
-          echo "Number of price files:"
-          find data/prices -type f | wc -l
+          python - <<'PY'
+          import pandas as pd
 
-          echo "First few files:"
-          find data/prices -type f | sed -n '1,10p'
+          path = 'data/master/master.csv'
+          master = pd.read_csv(path)
+
+          test_master = (
+            master[master['Status'] == 'active'].head(10)
+          )
+
+          test_master.to_csv(
+            path,
+            index = False,
+          )
+
+          print('Stocks used for this test: ')
+          print(
+            test_master[
+              ['Ticker', 'Status']
+            ].to_string(index=False)
+          )
+          PY
+
+      - name: Update price data
+        env:
+          STOCK_DATA_DIR: ${{ github.workspace }}/data
+        run: python src/update_price.py
+      
