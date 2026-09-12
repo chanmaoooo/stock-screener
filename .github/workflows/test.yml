@@ -19,5 +19,8 @@ jobs:
       - name: Show Python version
         run: python --version
 
-      - name: Test Python
-        run: python -c "print('GitHub Actions is working!')"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Test dependencies
+        run: python -c "import pandas, yfinance; print('Dependencies are working!')"
