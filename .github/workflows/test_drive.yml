@@ -67,4 +67,8 @@ jobs:
           zip -rq prices.zip prices
           cd ..
           ls -lh data/prices.zip
+
+      - name: Upload updated price data
+        run: python src/upload_drive_data.py
+        
       

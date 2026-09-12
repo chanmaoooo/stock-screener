@@ -4,7 +4,6 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
 
-import time
 
 SCOPES = ['https://www.googleapis.com/auth/drive']
 
@@ -199,7 +198,7 @@ def main():
         f'Downloaded prices.zip to '
         f'{prices_zip_path}'
     )
-    
+
 
 
 
