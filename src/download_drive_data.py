@@ -182,35 +182,24 @@ def main():
         )
 
 
-    start_time = time.time()
-
-    test_files= price_files[:100]
-
-    for i,file in enumerate(test_files, start=1):
-        output_path = (
-            LOCAL_DATA_DIR / 'prices' / file['name']
-        )
-
-        download_file(
-            service,
-            file['id'],
-            output_path,
-        )
-
-        print(
-            f"[{i}/{len(test_files)}] "
-            f"tDownloaded {file['name']}"
-        )
-
-    elapsed_time = time.time() - start_time
-
-    print(
-        f'Downloaded {len(test_files)} files '
-        f'in {elapsed_time:.1f} seconds.'
+    prices_zip_file = find_file(
+        service,
+        'prices.zip',
     )
 
-    
+    prices_zip_path = (LOCAL_DATA_DIR / 'prices.zip')
 
+    download_file(
+        service,
+        prices_zip_file['id'],
+        prices_zip_path,
+    )
+
+    print(
+        f'Downloaded prices.zip to '
+        f'{prices_zip_path}'
+    )
+    
 
 
 

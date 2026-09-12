@@ -27,8 +27,13 @@ jobs:
       - name: Download master data
         run: python src/download_drive_data.py
 
-      - name: Check downloaded file
+      - name: Extract price data
+        run: unzip data/prices.zip -d data
+
+      - name: Check extracted price data
         run: |
-          ls -la data/master
-          head -n 5 data/master/master.csv
-          ls -la data/prices
+          echo "Number of price files:"
+          find data/prices -type f | wc -l
+
+          echo "First few files:"
+          find data/prices -type f | head
