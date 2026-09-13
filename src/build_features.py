@@ -25,16 +25,51 @@ def latest_features(data):
     }
 
 
-FEATURE_FUNCTION = [
-    latest_features,
+def average_price(data, days):
+    close = data['Close']
+
+    if(len(close)<days):
+        return {
+            f'Average_{days}d': None
+        }
+
+    return {
+        f'Average_{days}d': close.iloc[-days:].mean()
+    }
+
+
+def minmax_price(data, days):
+    high = data['High']
+    low = data['Low']
+    if(len(high)<days):
+        return {
+            f'Max_{days}d': None,
+        }
+    if(len(low)<days):
+        return {
+            f'Min_{days}d': None,
+        }
+
+    return {
+        f'Max_{days}d': high.iloc[-days:].max(),
+        f'Min_{days}d': low.iloc[-days:].min(),
+    }
+
+
+FEATURE_FUNCTIONS = [
+    (latest_features, {}),
+    (average_price, {'days': 50}),
+    (average_price, {'days': 150}),
+    (average_price, {'days': 200}),
+    (minmax_price, {'days': 240}),
 ]
 
 
 def calculate_features(data):
     features = {}
-    for function in FEATURE_FUNCTION:
+    for function, kwargs in FEATURE_FUNCTIONS:
         features.update(
-            function(data)
+            function(data, **kwargs)
         )
 
     return features
