@@ -114,7 +114,7 @@ def save_new_price_data(ticker, ticker_data):
 
 
 
-def updata_existing_price_data(ticker, ticker_data):
+def update_existing_price_data(ticker, ticker_data):
     output_path = PRICE_DIR / f'{ticker}.csv'
 
     old_data = pd.read_csv(
@@ -161,7 +161,7 @@ def process_batch(tickers, period, is_new):
                 save_new_price_data(ticker, ticker_data)
                 print(f'Created: {ticker}')
             else:
-                updata_existing_price_data(ticker, ticker_data)
+                update_existing_price_data(ticker, ticker_data)
                 print(f'Updated: {ticker}')
 
         except Exception as error:

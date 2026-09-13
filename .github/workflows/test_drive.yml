@@ -39,6 +39,11 @@ jobs:
           STOCK_DATA_DIR: ${{ github.workspace }}/data
         run: python src/update_prices.py
 
+      - name: Update features data
+        env:
+          STOCK_DATA_DIR: ${{ github.workspace }}/data
+        run: python src/build_features.py
+
       - name: Compress updated price data
         run: |
           rm data/prices.zip
@@ -47,7 +52,7 @@ jobs:
           cd ..
           ls -lh data/prices.zip
 
-      - name: Upload updated price data
+      - name: Upload updated price and features data
         run: python src/upload_drive_data.py
 
       

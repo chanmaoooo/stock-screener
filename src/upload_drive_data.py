@@ -13,6 +13,7 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 TOKEN_PATH = ROOT_DIR / 'token.json'
 
 PRICES_ZIP_PATH = ROOT_DIR / 'data' / 'prices.zip'
+FEATURES_PATH = ROOT_DIR / 'data' / 'scores' / 'features.csv'
 
 
 
@@ -45,7 +46,25 @@ def main():
         prices_zip['id'],
         'application/zip'
     )
-    
+
+    score_folder = find_folder(
+        service,
+        'scores',
+        parent_id = stock_data_folder['id'],
+    )
+
+    features_file = find_file(
+        service,
+        'features.csv',
+        parent_id = score_folder['id'],
+    )
+
+    upload_file(
+        service,
+        FEATURES_PATH,
+        features_file['id'],
+        'test/csv',
+    )
 
 
 if __name__ == '__main__':
