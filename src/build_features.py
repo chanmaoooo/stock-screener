@@ -41,12 +41,9 @@ def average_price(data, days):
 def minmax_price(data, days):
     high = data['High']
     low = data['Low']
-    if(len(high)<days):
+    if(len(data)<days):
         return {
             f'Max_{days}d': None,
-        }
-    if(len(low)<days):
-        return {
             f'Min_{days}d': None,
         }
 
@@ -114,6 +111,15 @@ def main():
                 print(
                     f'Skip {ticker}: '
                     f'empty price data.'
+                )
+                continue
+
+            required_columns = ['Open', 'High', 'Low', 'Close']
+            data = data.dropna(subset=required_columns)
+            if(data.empty):
+                print(
+                    f'Skip {ticker}: '
+                    f'no complete price data.'
                 )
                 continue
 
