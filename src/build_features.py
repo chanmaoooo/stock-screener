@@ -15,6 +15,9 @@ PRICE_DIR = (DATA_DIR / 'prices')
 OUTPUT_PATH = (DATA_DIR / 'scores' / 'features.csv')
 
 
+RS_URL = ( 'https://raw.githubusercontent.com/Fred6725/rs-log/main/output/rs_stocks.csv' )
+
+
 def latest_features(data):
     latest = data.iloc[-1]
 
@@ -142,6 +145,27 @@ def main():
     features_df = (
         features_df.set_index('Ticker').sort_index()
     )
+
+
+    rs_data = pd.read_csv(RS_URL)
+    rs_data = (
+        rs_data[['Ticker', 'Percentile']]
+        .drop_duplicates(subset='Ticker', keep='last')
+        .rename( columns={'Percentile': 'RS_Percentile'} )
+        .set_index('Ticker')
+    )
+
+    features_df = features_df.join(
+        rs_data,
+        how = 'left',
+    )
+
+    matched_rs = (
+        features_df['RS_Percentile'].notna().sum()
+    )
+
+    print( f'RS matched: {matched_rs}/{len(features_df)}' )
+
 
     OUTPUT_PATH.parent.mkdir(
         parents = True,
