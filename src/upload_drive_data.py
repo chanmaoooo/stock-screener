@@ -1,8 +1,9 @@
+import json
+import os
 from pathlib import Path
 
-from google.oauth2.credentials import Credentials
+from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
-from googleapiclient.http import MediaFileUpload
 
 from drive_utils import find_folder, find_file, upload_file
 
@@ -10,7 +11,6 @@ from drive_utils import find_folder, find_file, upload_file
 SCOPES = ['https://www.googleapis.com/auth/drive']
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-TOKEN_PATH = ROOT_DIR / 'token.json'
 
 PRICES_ZIP_PATH = ROOT_DIR / 'data' / 'prices.zip'
 FEATURES_PATH = ROOT_DIR / 'data' / 'scores' / 'features.csv'
@@ -18,9 +18,13 @@ FEATURES_PATH = ROOT_DIR / 'data' / 'scores' / 'features.csv'
 
 
 def main():
-    credentials = Credentials.from_authorized_user_file(
-        TOKEN_PATH,
-        SCOPES,
+    service_account_info = json.loads(
+        os.environ['GOOGLE_SERVICE_ACCOUNT_JSON']
+    )
+        
+    credentials = Credentials.from_service_account_info(
+        service_account_info,
+        scopes = SCOPES,
     )
 
     service = build(
@@ -63,7 +67,7 @@ def main():
         service,
         FEATURES_PATH,
         features_file['id'],
-        'test/csv',
+        'text/csv',
     )
 
 

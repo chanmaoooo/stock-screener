@@ -1,6 +1,8 @@
+import json
+import os
 from pathlib import Path
 
-from google.oauth2.credentials import Credentials
+from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 
 from drive_utils import find_folder, find_file, download_file
@@ -10,7 +12,6 @@ from drive_utils import find_folder, find_file, download_file
 SCOPES = ['https://www.googleapis.com/auth/drive']
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-TOKEN_PATH = ROOT_DIR / 'token.json'
 
 LOCAL_DATA_DIR = ROOT_DIR / 'data'
 # LOCAL_MASTER_DIR = LOCAL_DATA_DIR / 'master'
@@ -18,9 +19,13 @@ LOCAL_DATA_DIR = ROOT_DIR / 'data'
 
 
 def main():
-    credentials = Credentials.from_authorized_user_file(
-        TOKEN_PATH,
-        SCOPES,
+    service_account_info = json.loads(
+        os.environ['GOOGLE_SERVICE_ACCOUNT_JSON']
+    )
+
+    credentials = Credentials.from_service_account_info(
+        service_account_info,
+        scopes = SCOPES,
     )
 
     service = build(
@@ -35,7 +40,7 @@ def main():
     )
 
     stock_data_folder_id = ( stock_data_folder['id'] )
-    
+
     master_folder = find_folder(
         service,
         'master',

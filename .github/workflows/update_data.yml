@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
   schedule:
-    - cron: '23 12 * * 2-6'
+    - cron: '23 11 * * 2-6'
       timezone: 'Asia/Tokyo'
 
 jobs:
@@ -23,12 +23,14 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Restore Google credentials
-        run: |
-          printf '%s' '${{ secrets.GOOGLE_CREDENTIALS_JSON }}' > credentials.json
-          printf '%s' '${{ secrets.GOOGLE_TOKEN_JSON }}' > token.json
+      # - name: Restore Google credentials
+      #   run: |
+      #     printf '%s' '${{ secrets.GOOGLE_CREDENTIALS_JSON }}' > credentials.json
+      #     printf '%s' '${{ secrets.GOOGLE_TOKEN_JSON }}' > token.json
 
       - name: Download master data
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
         run: python src/download_drive_data.py
 
       - name: Extract price data
@@ -53,6 +55,8 @@ jobs:
           ls -lh data/prices.zip
 
       - name: Upload updated price and features data
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
         run: python src/upload_drive_data.py
 
       
